@@ -1,37 +1,47 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, UploadFile, File
+from scraper import get_site_data
+from ai_formatter import format_answer
+from translator import translate_bn
 from sites import SITES
 
-app = FastAPI(title="Cyber Security Learning API")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"]
-)
-
+app = FastAPI(title="Cyber Security AI Learning API")
 
 @app.get("/")
-def root():
+def home():
     return {
-        "message": "🛡️ Cyber Security Learning API Running",
-        "total_sites": len(SITES)
+        "message": "Cyber AI Learning API Running",
+        "sites": len(SITES)
     }
 
 
 @app.get("/sites")
 def list_sites():
+    return SITES
+
+
+@app.get("/learn/{site}")
+def learn(site:str, mode:str="short", bangla_style:str="colloquial"):
+
+    if site not in SITES:
+        return {"error":"site not found"}
+
+    data = get_site_data(SITES[site]["url"])
+
+    formatted = format_answer(data,mode)
+
+    bangla = translate_bn(formatted,bangla_style)
+
     return {
-        "total": len(SITES),
-        "sites": SITES
+        "site":site,
+        "english":formatted,
+        "bangla":bangla
     }
 
 
-@app.get("/site/{site_id}")
-def get_site(site_id: str):
+@app.post("/image")
+async def image_upload(file:UploadFile=File(...)):
 
-    if site_id not in SITES:
-        raise HTTPException(status_code=404, detail="Site not found")
-
-    return SITES[site_id]
+    return {
+        "message":"Image received",
+        "filename":file.filename
+    }
