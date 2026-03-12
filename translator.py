@@ -1,16 +1,18 @@
 from googletrans import Translator
 
-translator=Translator()
+translator = Translator()
 
-def translate_bn(text,style):
+
+def translate_bn(text, style):
 
     try:
 
-        result=translator.translate(text,dest="bn").text
+        result = translator.translate(text, dest="bn").text
 
-        if style=="sadhu":
+        if style == "sadhu":
 
-            result=result.replace("করে","করিয়া").replace("হয়","হইয়াছে")
+            result = result.replace("করে", "করিয়া")
+            result = result.replace("হয়", "হইয়াছে")
 
         return result
 
