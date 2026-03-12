@@ -1,8 +1,12 @@
-def format_answer(text,mode):
+def format_answer(text, mode):
 
-    if mode=="short":
+    if mode == "short":
 
         return text[:400]
+
+    elif mode == "full":
+
+        return text
 
     else:
 
