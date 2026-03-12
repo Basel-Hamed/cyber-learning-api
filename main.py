@@ -3,14 +3,16 @@ from scraper import get_site_data
 from ai_formatter import format_answer
 from translator import translate_bn
 from sites import SITES
+from image_tools import analyze_image
 
 app = FastAPI(title="Cyber Security AI Learning API")
+
 
 @app.get("/")
 def home():
     return {
         "message": "Cyber AI Learning API Running",
-        "sites": len(SITES)
+        "total_sites": len(SITES)
     }
 
 
@@ -20,28 +22,32 @@ def list_sites():
 
 
 @app.get("/learn/{site}")
-def learn(site:str, mode:str="short", bangla_style:str="colloquial"):
+def learn(site: str, mode: str = "short", bangla_style: str = "colloquial"):
+
+    site = site.lower()
 
     if site not in SITES:
-        return {"error":"site not found"}
+        return {"error": "Site not found"}
 
     data = get_site_data(SITES[site]["url"])
 
-    formatted = format_answer(data,mode)
+    formatted = format_answer(data, mode)
 
-    bangla = translate_bn(formatted,bangla_style)
+    bangla = translate_bn(formatted, bangla_style)
 
     return {
-        "site":site,
-        "english":formatted,
-        "bangla":bangla
+        "site": site,
+        "english": formatted,
+        "bangla": bangla
     }
 
 
 @app.post("/image")
-async def image_upload(file:UploadFile=File(...)):
+async def upload_image(file: UploadFile = File(...)):
+
+    result = await analyze_image(file)
 
     return {
-        "message":"Image received",
-        "filename":file.filename
+        "filename": file.filename,
+        "analysis": result
     }
