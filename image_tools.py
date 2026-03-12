@@ -1,3 +1,10 @@
-def analyze_image():
+from fastapi import UploadFile
 
-    return "Image analysis feature coming soon"
+
+async def analyze_image(file: UploadFile):
+
+    content = await file.read()
+
+    size = len(content)
+
+    return f"Image received successfully. Size: {size} bytes."
